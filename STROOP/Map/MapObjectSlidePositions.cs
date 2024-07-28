@@ -36,9 +36,11 @@ namespace STROOP.Map
 
         private bool _isPaused = false;
         private bool _exclude0HSpeedCases = false;
+        private bool _excludeTurnAroundAngles = false;
 
         private ToolStripMenuItem _itemPause;
         private ToolStripMenuItem _itemExclude0HSpeedCases;
+        private ToolStripMenuItem _itemExcludeTurnAroundAngles;
 
         private int _tex = -1;
 
@@ -382,9 +384,18 @@ namespace STROOP.Map
                     GetParentMapTracker().ApplySettings(settings);
                 };
 
+                _itemExcludeTurnAroundAngles = new ToolStripMenuItem("Exclude Turn-Around Angles");
+                _itemExcludeTurnAroundAngles.Click += (sender, e) =>
+                {
+                    MapObjectSettings settings = new MapObjectSettings(
+                        changeSlidePositionsExcludeTurnAroundAngles: true, newSlidePositionsExcludeTurnAroundAngles: !_excludeTurnAroundAngles);
+                    GetParentMapTracker().ApplySettings(settings);
+                };
+
                 _contextMenuStrip = new ContextMenuStrip();
                 _contextMenuStrip.Items.Add(_itemPause);
                 _contextMenuStrip.Items.Add(_itemExclude0HSpeedCases);
+                _contextMenuStrip.Items.Add(_itemExcludeTurnAroundAngles);
             }
 
             return _contextMenuStrip;
@@ -404,6 +415,12 @@ namespace STROOP.Map
             {
                 _exclude0HSpeedCases = settings.NewSlidePositionsExclude0HSpeedCases;
                 _itemExclude0HSpeedCases.Checked = settings.NewSlidePositionsExclude0HSpeedCases;
+            }
+
+            if (settings.ChangeSlidePositionsExcludeTurnAroundAngles)
+            {
+                _excludeTurnAroundAngles = settings.NewSlidePositionsExcludeTurnAroundAngles;
+                _itemExcludeTurnAroundAngles.Checked = settings.NewSlidePositionsExcludeTurnAroundAngles;
             }
         }
     }

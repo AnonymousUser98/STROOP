@@ -199,6 +199,9 @@ namespace STROOP.Map
         public readonly bool ChangeSlidePositionsExclude0HSpeedCases;
         public readonly bool NewSlidePositionsExclude0HSpeedCases;
 
+        public readonly bool ChangeSlidePositionsExcludeTurnAroundAngles;
+        public readonly bool NewSlidePositionsExcludeTurnAroundAngles;
+
         public MapObjectSettings(
             bool changeCustomCylinderRelativeMinY = false,
             float newCustomCylinderRelativeMinY = 0,
@@ -387,7 +390,10 @@ namespace STROOP.Map
             bool newSlidePositionsPause = false,
 
             bool changeSlidePositionsExclude0HSpeedCases = false,
-            bool newSlidePositionsExclude0HSpeedCases = false)
+            bool newSlidePositionsExclude0HSpeedCases = false,
+
+            bool changeSlidePositionsExcludeTurnAroundAngles = false,
+            bool newSlidePositionsExcludeTurnAroundAngles = false)
         {
             ChangeCustomCylinderRelativeMinY = changeCustomCylinderRelativeMinY;
             NewCustomCylinderRelativeMinY = newCustomCylinderRelativeMinY;
@@ -577,6 +583,9 @@ namespace STROOP.Map
 
             ChangeSlidePositionsExclude0HSpeedCases = changeSlidePositionsExclude0HSpeedCases;
             NewSlidePositionsExclude0HSpeedCases = newSlidePositionsExclude0HSpeedCases;
+
+            ChangeSlidePositionsExcludeTurnAroundAngles = changeSlidePositionsExcludeTurnAroundAngles;
+            NewSlidePositionsExcludeTurnAroundAngles = newSlidePositionsExcludeTurnAroundAngles;
         }
 
         public static MapObjectSettings FromXElement(XElement xElement)
