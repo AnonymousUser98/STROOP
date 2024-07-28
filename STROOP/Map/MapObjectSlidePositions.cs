@@ -135,6 +135,16 @@ namespace STROOP.Map
                             wall: wall,
                             terrainType: terrainType,
                             input: new Input(x, y));
+
+                    if (_excludeTurnAroundAngles)
+                    {
+                        if (MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) < -0x471C ||
+                            MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) > 0x471C)
+                        {
+                            continue;
+                        }
+                    }
+
                     SlideCalculator.DoSlideFrame(marioState);
                     if (!seen.Contains((marioState.X, marioState.Y, marioState.Z)))
                     {
@@ -153,13 +163,6 @@ namespace STROOP.Map
             if (_exclude0HSpeedCases)
             {
                 points = points.FindAll(marioState => marioState.HSpeed != 0);
-            }
-
-            if (_excludeTurnAroundAngles)
-            {
-                points = points.FindAll(marioState =>
-                    MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) >= -0x471C &&
-                    MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) <= 0x471C);
             }
 
             return points;
