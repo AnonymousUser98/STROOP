@@ -148,8 +148,21 @@ namespace STROOP.Map
 
         private List<SlidingMarioState> GetPoints()
         {
-            return GetPointsInternal().FindAll(
-                marioState => !_exclude0HSpeedCases || marioState.HSpeed != 0);
+            List<SlidingMarioState> points = GetPointsInternal();
+
+            if (_exclude0HSpeedCases)
+            {
+                points = points.FindAll(marioState => marioState.HSpeed != 0);
+            }
+
+            if (_excludeTurnAroundAngles)
+            {
+                points = points.FindAll(marioState =>
+                    MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) >= -0x471C &&
+                    MoreMath.NormalizeAngleShort(marioState.IntendedAngle - marioState.MarioAngle) <= 0x471C);
+            }
+
+            return points;
         }
 
         public List<(string, object)> GetInfoFromMarioState(SlidingMarioState marioState)
