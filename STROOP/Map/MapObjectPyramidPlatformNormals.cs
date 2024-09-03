@@ -39,22 +39,44 @@ namespace STROOP.Map
         public override void DrawOn2DControlTopDownView(MapObjectHoverData hoverData)
         {
             uint objAddress = _posAngle.GetObjAddress();
-            float normalX = CustomNormalX ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalXOffset);
-            float normalZ = CustomNormalZ ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalZOffset);
 
             DrawCircles(Color.Purple);
-            DrawHyperbolas(true, normalX, Color.DarkRed);
-            DrawHyperbolas(false, normalZ, Color.Lime);
+            DrawHyperbolas(true, CustomNormalX, Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalXOffset), Color.DarkRed);
+            DrawHyperbolas(false, CustomNormalZ, Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalZOffset), Color.Lime);
+        }
+
+        private float ApproachNormal(float? startNullable, float end)
+        {
+            if (!startNullable.HasValue)
+            {
+                return end;
+            }
+
+            float start = startNullable.Value;
+
+            while (start + 0.01f <= end)
+            {
+                start += 0.01f;
+            }
+
+            while (start - 0.01f >= end)
+            {
+                start -= 0.01f;
+            }
+
+            return start;
         }
 
         private void DrawCircles(Color color)
         {
             uint objAddress = _posAngle.GetObjAddress();
             float normalY = CustomNormalY ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalYOffset);
+            float approachedNormal = ApproachNormal(CustomNormalY, Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalYOffset));
 
             double r1 = 500 * Math.Sqrt(1 / ((normalY + 0.01) * (normalY + 0.01)) - 1);
             double r2 = 500 * Math.Sqrt(1 / ((normalY) * (normalY)) - 1);
             double r3 = 500 * Math.Sqrt(1 / ((normalY - 0.01) * (normalY - 0.01)) - 1);
+            double r4 = 500 * Math.Sqrt(1 / ((approachedNormal) * (approachedNormal)) - 1);
 
             if (!UsingCustom)
             {
@@ -70,6 +92,11 @@ namespace STROOP.Map
             if (!UsingCustom)
             {
                 DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r3, color);
+            }
+
+            if (UsingCustom)
+            {
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r4, color);
             }
         }
 
@@ -131,25 +158,30 @@ namespace STROOP.Map
             GL.Color4(1, 1, 1, 1.0f);
         }
 
-        private void DrawHyperbolas(bool isForX, float normal, Color color)
+        private void DrawHyperbolas(bool isForX, float? customNormal, float inGameNormal, Color color)
         {
             List<double> offsets = new List<double>() { -0.01, 0, 0.01 };
+            List<double> offsetedNormals = offsets.ConvertAll(offset => inGameNormal + offset);
+
+            float approachedNormal = ApproachNormal(customNormal, inGameNormal);
+            offsetedNormals.Add(approachedNormal);
+
             double range = 1000;
             List<List<(float pointX, float pointZ)>> pointLists =
-                offsets.ConvertAll(offset =>
+                offsetedNormals.ConvertAll(offsetedNormal =>
                 {
                     if (isForX)
                     {
                         return Enumerable.Range(0, MapConfig.MapCircleNumPoints2D).ToList()
                             .ConvertAll(index => (index / (float)MapConfig.MapCircleNumPoints2D) * 2 * range - range + _posAngle.Z)
-                            .ConvertAll(z => (Math.Sign(normal + offset) * Math.Sqrt((250000 + ((z - _posAngle.Z) * (z - _posAngle.Z))) / ((1 / ((normal + offset) * (normal + offset))) - 1)) + _posAngle.X, z))
+                            .ConvertAll(z => (Math.Sign(offsetedNormal) * Math.Sqrt((250000 + ((z - _posAngle.Z) * (z - _posAngle.Z))) / ((1 / ((offsetedNormal) * (offsetedNormal))) - 1)) + _posAngle.X, z))
                             .ConvertAll(p => MapUtilities.ConvertCoordsForControlTopDownView((float)p.Item1, (float)p.z, UseRelativeCoordinates));
                     }
                     else
                     {
                         return Enumerable.Range(0, MapConfig.MapCircleNumPoints2D).ToList()
                             .ConvertAll(index => (index / (float)MapConfig.MapCircleNumPoints2D) * 2 * range - range + _posAngle.X)
-                            .ConvertAll(x => (Math.Sign(normal + offset) * Math.Sqrt((250000 + ((x - _posAngle.X) * (x - _posAngle.X))) / ((1 / ((normal + offset) * (normal + offset))) - 1)) + _posAngle.Z, x))
+                            .ConvertAll(x => (Math.Sign(offsetedNormal) * Math.Sqrt((250000 + ((x - _posAngle.X) * (x - _posAngle.X))) / ((1 / ((offsetedNormal) * (offsetedNormal))) - 1)) + _posAngle.Z, x))
                             .ConvertAll(p => MapUtilities.ConvertCoordsForControlTopDownView((float)p.x, (float)p.Item1, UseRelativeCoordinates));
                     }
                 });
@@ -168,6 +200,11 @@ namespace STROOP.Map
             if (!UsingCustom)
             {
                 DrawHyperbola(pointLists[2], color);
+            }
+
+            if (UsingCustom)
+            {
+                DrawHyperbola(pointLists[3], color);
             }
         }
 
