@@ -10,6 +10,7 @@ using STROOP.Structs.Configurations;
 using STROOP.Structs;
 using OpenTK;
 using System.Xml.Linq;
+using System.Windows.Forms;
 
 namespace STROOP.Map
 {
@@ -17,10 +18,18 @@ namespace STROOP.Map
     {
         private readonly PositionAngle _posAngle;
 
+        private float? CustomNormalX;
+        private float? CustomNormalY;
+        private float? CustomNormalZ;
+
         public MapObjectPyramidPlatformNormals(PositionAngle posAngle)
             : base()
         {
             _posAngle = posAngle;
+
+            CustomNormalX = null;
+            CustomNormalY = null;
+            CustomNormalZ = null;
 
             Opacity = 0.5;
         }
@@ -202,7 +211,12 @@ namespace STROOP.Map
 
         public override string GetName()
         {
-            return "Pyramid Platform Normals for " + _posAngle.GetMapName();
+            string prefix = "";
+            if (CustomNormalX.HasValue && CustomNormalY.HasValue && CustomNormalZ.HasValue)
+            {
+                prefix = $"{CustomNormalX.Value}, {CustomNormalY.Value}, {CustomNormalZ.Value} ";
+            }
+            return prefix + "Pyramid Platform Normals for " + _posAngle.GetMapName();
         }
 
         public override Image GetInternalImage()
@@ -214,6 +228,62 @@ namespace STROOP.Map
         {
             return _posAngle;
         }
+
+        public override ContextMenuStrip GetContextMenuStrip()
+        {
+            if (_contextMenuStrip == null)
+            {
+                ToolStripMenuItem itemSetNormal = new ToolStripMenuItem("Set Normal");
+                itemSetNormal.Click += (sender, e) =>
+                {
+                    string text = DialogUtilities.GetStringFromDialog(labelText: "Enter nx, ny, and nz:");
+                    List<double?> values = ParsingUtilities.ParseDoubleList(text);
+                    if (values.Count < 3 || !values[0].HasValue || !values[1].HasValue || !values[2].HasValue)
+                    {
+                        return;
+                    }
+                    float nx = (float)values[0].Value;
+                    float ny = (float)values[1].Value;
+                    float nz = (float)values[2].Value;
+                    MapObjectSettings settings = new MapObjectSettings(
+                        changeNormalX: true, changeNormalY: true, changeNormalZ: true, newNormalX: nx, newNormalY: ny, newNormalZ: nz);
+                    GetParentMapTracker().ApplySettings(settings);
+                };
+
+                ToolStripMenuItem itemClearNormal = new ToolStripMenuItem("Clear Normal");
+                itemClearNormal.Click += (sender, e) =>
+                {
+                    MapObjectSettings settings = new MapObjectSettings(
+                        changeNormalX: true, changeNormalY: true, changeNormalZ: true, newNormalX: null, newNormalY: null, newNormalZ: null);
+                    GetParentMapTracker().ApplySettings(settings);
+                };
+
+                _contextMenuStrip = new ContextMenuStrip();
+                _contextMenuStrip.Items.Add(itemSetNormal);
+                _contextMenuStrip.Items.Add(itemClearNormal);
+            }
+
+            return _contextMenuStrip;
+        }
+
+        public override void ApplySettings(MapObjectSettings settings)
+        {
+            base.ApplySettings(settings);
+
+            if (settings.ChangeNormalX)
+            {
+                CustomNormalX = settings.NewNormalX;
+            }
+            if (settings.ChangeNormalY)
+            {
+                CustomNormalY = settings.NewNormalY;
+            }
+            if (settings.ChangeNormalZ)
+            {
+                CustomNormalZ = settings.NewNormalZ;
+            }
+        }
+
 
         public override List<XAttribute> GetXAttributes()
         {
