@@ -37,8 +37,8 @@ namespace STROOP.Map
         public override void DrawOn2DControlTopDownView(MapObjectHoverData hoverData)
         {
             uint objAddress = _posAngle.GetObjAddress();
-            float normalX = Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalXOffset);
-            float normalZ = Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalZOffset);
+            float normalX = CustomNormalX ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalXOffset);
+            float normalZ = CustomNormalZ ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalZOffset);
 
             DrawCircles(Color.Purple);
             DrawHyperbolas(true, normalX, Color.DarkRed);
@@ -48,7 +48,7 @@ namespace STROOP.Map
         private void DrawCircles(Color color)
         {
             uint objAddress = _posAngle.GetObjAddress();
-            float normalY = Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalYOffset);
+            float normalY = CustomNormalY ?? Config.Stream.GetFloat(objAddress + ObjectConfig.PyramidPlatformNormalYOffset);
 
             double r1 = 500 * Math.Sqrt(1 / ((normalY + 0.01) * (normalY + 0.01)) - 1);
             double r2 = 500 * Math.Sqrt(1 / ((normalY) * (normalY)) - 1);
