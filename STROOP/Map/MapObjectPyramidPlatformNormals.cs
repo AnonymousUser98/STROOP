@@ -22,6 +22,8 @@ namespace STROOP.Map
         private float? CustomNormalY;
         private float? CustomNormalZ;
 
+        private bool UsingCustom => CustomNormalX.HasValue || CustomNormalY.HasValue || CustomNormalZ.HasValue;
+
         public MapObjectPyramidPlatformNormals(PositionAngle posAngle)
             : base()
         {
@@ -54,12 +56,21 @@ namespace STROOP.Map
             double r2 = 500 * Math.Sqrt(1 / ((normalY) * (normalY)) - 1);
             double r3 = 500 * Math.Sqrt(1 / ((normalY - 0.01) * (normalY - 0.01)) - 1);
 
-            ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r1, (float)r2, color.Lighten(0.5));
-            ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r2, (float)r3, color.Lighten(0.5));
+            if (!UsingCustom)
+            {
+                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r1, (float)r2, color.Lighten(0.5));
+                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r2, (float)r3, color.Lighten(0.5));
+            }
 
-            DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r1, color);
+            if (!UsingCustom)
+            {
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r1, color);
+            }
             DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r2, color);
-            DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r3, color);
+            if (!UsingCustom)
+            {
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r3, color);
+            }
         }
 
         private void DrawCircle(float centerX, float centerZ, float radius, Color color)
@@ -143,12 +154,20 @@ namespace STROOP.Map
                     }
                 });
 
-            ShadeBetweenHyperbolas(pointLists[0], pointLists[1], color.Lighten(0.5));
-            ShadeBetweenHyperbolas(pointLists[1], pointLists[2], color.Lighten(0.5));
-
-            foreach (var pointList in pointLists)
+            if (!UsingCustom)
             {
-                DrawHyperbola(pointList, color);
+                ShadeBetweenHyperbolas(pointLists[0], pointLists[1], color.Lighten(0.5));
+                ShadeBetweenHyperbolas(pointLists[1], pointLists[2], color.Lighten(0.5));
+            }
+
+            if (!UsingCustom)
+            {
+                DrawHyperbola(pointLists[0], color);
+            }
+            DrawHyperbola(pointLists[1], color);
+            if (!UsingCustom)
+            {
+                DrawHyperbola(pointLists[2], color);
             }
         }
 
