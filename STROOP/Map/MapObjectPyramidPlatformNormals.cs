@@ -77,26 +77,21 @@ namespace STROOP.Map
             double r2 = 500 * Math.Sqrt(1 / ((normalY) * (normalY)) - 1);
             double r3 = 500 * Math.Sqrt(1 / ((normalY - 0.01) * (normalY - 0.01)) - 1);
             double r4 = 500 * Math.Sqrt(1 / ((approachedNormal) * (approachedNormal)) - 1);
-
-            if (!UsingCustom)
-            {
-                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r1, (float)r2, color.Lighten(0.5));
-                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r2, (float)r3, color.Lighten(0.5));
-            }
-
-            if (!UsingCustom)
-            {
-                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r1, color);
-            }
-            DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r2, color);
-            if (!UsingCustom)
-            {
-                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r3, color);
-            }
+            double r5 = 500 * Math.Sqrt(1 / ((CustomNormalY ?? normalY) * (CustomNormalY ?? normalY)) - 1);
 
             if (UsingCustom)
             {
                 DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r4, color);
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r5, color);
+            }
+            else
+            {
+                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r1, (float)r2, color.Lighten(0.5));
+                ShadeBetweenCircles((float)_posAngle.X, (float)_posAngle.Z, (float)r2, (float)r3, color.Lighten(0.5));
+
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r1, color);
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r2, color);
+                DrawCircle((float)_posAngle.X, (float)_posAngle.Z, (float)r3, color);
             }
         }
 
@@ -165,6 +160,7 @@ namespace STROOP.Map
 
             float approachedNormal = ApproachNormal(customNormal, inGameNormal);
             offsetedNormals.Add(approachedNormal);
+            offsetedNormals.Add(customNormal ?? inGameNormal);
 
             double range = 1000;
             List<List<(float pointX, float pointZ)>> pointLists =
@@ -186,25 +182,19 @@ namespace STROOP.Map
                     }
                 });
 
-            if (!UsingCustom)
-            {
-                ShadeBetweenHyperbolas(pointLists[0], pointLists[1], color.Lighten(0.5));
-                ShadeBetweenHyperbolas(pointLists[1], pointLists[2], color.Lighten(0.5));
-            }
-
-            if (!UsingCustom)
-            {
-                DrawHyperbola(pointLists[0], color);
-            }
-            DrawHyperbola(pointLists[1], color);
-            if (!UsingCustom)
-            {
-                DrawHyperbola(pointLists[2], color);
-            }
-
             if (UsingCustom)
             {
                 DrawHyperbola(pointLists[3], color);
+                DrawHyperbola(pointLists[4], color);
+            }
+            else
+            {
+                ShadeBetweenHyperbolas(pointLists[0], pointLists[1], color.Lighten(0.5));
+                ShadeBetweenHyperbolas(pointLists[1], pointLists[2], color.Lighten(0.5));
+
+                DrawHyperbola(pointLists[0], color);
+                DrawHyperbola(pointLists[1], color);
+                DrawHyperbola(pointLists[2], color);
             }
         }
 
